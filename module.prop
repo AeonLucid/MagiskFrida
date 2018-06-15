@@ -1,0 +1,7 @@
+id=magiskfrida
+name=MagiskFrida
+version=v1
+versionCode=1
+author=AeonLucid
+description=Run frida-server as a service with magisk.
+minMagisk=1500

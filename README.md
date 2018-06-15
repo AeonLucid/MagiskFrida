@@ -1,0 +1,3 @@
+# MagiskFrida
+
+W.I.P.
