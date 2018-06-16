@@ -25,11 +25,9 @@ def download_file(url, path):
     if os.path.exists(path):
         return
 
-    request = requests.get(url, stream=True)
+    r = requests.get(url, allow_redirects=True)
     with open(path, 'wb') as f:
-        for chunk in request.iter_content(chunk_size=1024):
-            if chunk:
-                f.write(chunk)
+        f.write(r.content)
 
     print("Done.")
 
@@ -83,6 +81,10 @@ def create_module(platform, frida_release):
 
 
 def main():
+    # Create necessary folders.
+    if not os.path.exists(downloads_path):
+        os.makedirs(downloads_path)
+
     # Fetch frida information.
     frida_releases_url = "https://api.github.com/repos/frida/frida/releases/latest"
     frida_releases = requests.get(frida_releases_url).json()

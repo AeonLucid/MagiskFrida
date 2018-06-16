@@ -1,0 +1,10 @@
+install:
+  - "SET PATH=C:\\Python36;C:\\Python36\\Scripts;%PATH%"
+  - C:/Python36/python.exe -m pip install --upgrade pip
+  - C:/Python36/Scripts/pip.exe install -r requirements.txt
+
+build_script:
+  - C:/Python36/python.exe build.py
+
+artifacts:
+  - path: ./*.zip

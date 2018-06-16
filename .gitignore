@@ -1,9 +1,7 @@
 /.idea/
 /venv/
-/downloads/
 /system/
 /module.prop
 /*.zip
 
-!.gitkeep
 !placeholder
