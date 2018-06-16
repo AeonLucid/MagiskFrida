@@ -98,7 +98,7 @@ name=MagiskFrida
 version=v{0}
 versionCode={1}
 author=AeonLucid
-description=Run frida-server as a service with magisk.
+description=Runs frida-server on boot as root with magisk.
 support=https://github.com/AeonLucid/MagiskFrida/issues
 minMagisk=1530""".format(frida_release, frida_release.replace(".", ""))
 
