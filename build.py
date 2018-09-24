@@ -35,9 +35,6 @@ def download_file(url, path):
 def extract_file(archive_path, dest_path):
     print("Extracting '{0}' to '{1}'.".format(os.path.basename(archive_path), os.path.basename(dest_path)))
 
-    if os.path.exists(dest_path):
-        return
-
     with lzma.open(archive_path) as f:
         file_content = f.read()
         path = os.path.dirname(dest_path)
