@@ -78,6 +78,9 @@ def create_module(platform, frida_release):
     # Copy base module into module dir.
     shutil.copytree(PATH_BASE_MODULE, module_dir)
 
+    # cd into module directory.
+    os.chdir(module_dir)
+
     # Create module.prop.
     create_module_prop(module_dir, frida_release)
 
@@ -94,7 +97,7 @@ def create_module(platform, frida_release):
     # Create flashable zip.
     print("Building Magisk module.")
 
-    file_list = ["config.sh", "module.prop"]
+    file_list = ["install.sh", "module.prop"]
 
     traverse_path_to_list(file_list, "./common")
     traverse_path_to_list(file_list, "./system")
