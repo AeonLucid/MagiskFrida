@@ -1,7 +1,4 @@
 /.idea/
 /venv/
-/system/
-/module.prop
-/*.zip
-
-!placeholder
+/downloads/
+/builds/

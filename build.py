@@ -1,12 +1,15 @@
 #!/user/bin/env python3
 import lzma
 import os
+import shutil
 import zipfile
 
 import requests
 
-base_path = os.path.abspath(os.path.dirname(__file__))
-downloads_path = os.path.join(base_path, "downloads")
+PATH_BASE = os.path.abspath(os.path.dirname(__file__))
+PATH_BASE_MODULE = os.path.join(PATH_BASE, "base")
+PATH_BUILDS = os.path.join(PATH_BASE, "builds")
+PATH_DOWNLOADS = os.path.join(PATH_BASE, "downloads")
 
 
 def traverse_path_to_list(file_list, path):
@@ -46,32 +49,63 @@ def extract_file(archive_path, dest_path):
             out.write(file_content)
 
 
+def create_module_prop(path, frida_release):
+    # Create module.prop file.
+    module_prop = """id=magiskfrida
+    name=MagiskFrida
+    version=v{0}
+    versionCode={1}
+    author=AeonLucid
+    description=Runs frida-server on boot as root with magisk.
+    support=https://github.com/AeonLucid/MagiskFrida/issues
+    minMagisk=1530""".format(frida_release, frida_release.replace(".", ""))
+
+    with open(os.path.join(path, "module.prop"), "w", newline='\n') as f:
+        f.write(module_prop)
+
+
 def create_module(platform, frida_release):
+    # Create directory.
+    module_dir = os.path.join(PATH_BUILDS, platform)
+    module_zip = os.path.join(PATH_BUILDS, "MagiskFrida-{0}-{1}.zip".format(frida_release, platform))
+
+    if os.path.exists(module_dir):
+        shutil.rmtree(module_dir)
+
+    if os.path.exists(module_zip):
+        os.remove(module_zip)
+
+    # Copy base module into module dir.
+    shutil.copytree(PATH_BASE_MODULE, module_dir)
+
+    # Create module.prop.
+    create_module_prop(module_dir, frida_release)
+
     # Download frida-server archives.
     frida_download_url = "https://github.com/frida/frida/releases/download/{0}/".format(frida_release)
     frida_server = "frida-server-{0}-android-{1}.xz".format(frida_release, platform)
-    frida_server_path = os.path.join(downloads_path, frida_server)
+    frida_server_path = os.path.join(PATH_DOWNLOADS, frida_server)
 
     download_file(frida_download_url + frida_server, frida_server_path)
 
     # Extract frida-server to correct path.
-    extract_file(frida_server_path, os.path.join(base_path, "system/xbin/frida-server"))
+    extract_file(frida_server_path, os.path.join(module_dir, "system/xbin/frida-server"))
 
     # Create flashable zip.
     print("Building Magisk module.")
 
-    file_list = ["config.sh", "module.prop", "README.md"]
+    file_list = ["config.sh", "module.prop"]
 
     traverse_path_to_list(file_list, "./common")
     traverse_path_to_list(file_list, "./system")
     traverse_path_to_list(file_list, "./META-INF")
 
-    with zipfile.ZipFile(os.path.join(base_path, "MagiskFrida-{0}-{1}.zip".format(frida_release, platform)), "w") as zf:
+    with zipfile.ZipFile(module_zip, "w") as zf:
         for file_name in file_list:
-            path = os.path.join(base_path, file_name)
+            path = os.path.join(module_dir, file_name)
 
             if not os.path.exists(path):
-                print("\t{0} does not exist..".format(path))
+                print("File {0} does not exist..".format(path))
                 continue
 
             zf.write(path, arcname=file_name)
@@ -79,8 +113,11 @@ def create_module(platform, frida_release):
 
 def main():
     # Create necessary folders.
-    if not os.path.exists(downloads_path):
-        os.makedirs(downloads_path)
+    if not os.path.exists(PATH_DOWNLOADS):
+        os.makedirs(PATH_DOWNLOADS)
+
+    if not os.path.exists(PATH_BUILDS):
+        os.makedirs(PATH_BUILDS)
 
     # Fetch frida information.
     frida_releases_url = "https://api.github.com/repos/frida/frida/releases/latest"
@@ -88,19 +125,6 @@ def main():
     frida_release = frida_releases["tag_name"]
 
     print("Latest frida version is {0}.".format(frida_release))
-
-    # Create module.prop file.
-    module_prop = """id=magiskfrida
-name=MagiskFrida
-version=v{0}
-versionCode={1}
-author=AeonLucid
-description=Runs frida-server on boot as root with magisk.
-support=https://github.com/AeonLucid/MagiskFrida/issues
-minMagisk=1530""".format(frida_release, frida_release.replace(".", ""))
-
-    with open("module.prop", "w", newline='\n') as f:
-        f.write(module_prop)
 
     # Create flashable modules.
     create_module("arm", frida_release)
