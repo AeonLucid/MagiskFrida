@@ -52,13 +52,13 @@ def extract_file(archive_path, dest_path):
 def create_module_prop(path, frida_release):
     # Create module.prop file.
     module_prop = """id=magiskfrida
-    name=MagiskFrida
-    version=v{0}
-    versionCode={1}
-    author=AeonLucid
-    description=Runs frida-server on boot as root with magisk.
-    support=https://github.com/AeonLucid/MagiskFrida/issues
-    minMagisk=1530""".format(frida_release, frida_release.replace(".", ""))
+name=MagiskFrida
+version=v{0}
+versionCode={1}
+author=AeonLucid
+description=Runs frida-server on boot as root with magisk.
+support=https://github.com/AeonLucid/MagiskFrida/issues
+minMagisk=1530""".format(frida_release, frida_release.replace(".", ""))
 
     with open(os.path.join(path, "module.prop"), "w", newline='\n') as f:
         f.write(module_prop)
